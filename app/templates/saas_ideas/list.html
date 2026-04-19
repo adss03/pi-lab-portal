@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}SaaS Ideas — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <a href="{{ request.url_for('dashboard') }}" class="header-brand"><b>Pi</b> Lab Portal</a>
+    <nav class="header-nav">
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">Sign out</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2 class="page-heading">SaaS Ideas</h2>
+    <p class="page-sub">B2B pain points from Reddit, HN &amp; Indie Hackers</p>
+
+    <div class="scrape-panel">
+      <form id="scrape-form" method="post" action="{{ request.url_for('scrape_start') }}">
+        <select name="source" id="scrape-source">
+          <option value="all">All sources</option>
+          {% for val, display in source_choices %}
+            <option value="{{ val }}">{{ display }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" id="scrape-btn">Run Scrape</button>
+      </form>
+      <div id="scrape-status" class="scrape-status">
+        {% if latest_job %}
+          {% if latest_job.status == 'running' or latest_job.status == 'pending' %}
+            <span class="scrape-running" data-job="{{ latest_job.id }}">Scraping {{ latest_job.source }}…</span>
+          {% elif latest_job.status == 'done' %}
+            <span class="scrape-done">{{ latest_job.posts_created }} new / {{ latest_job.posts_found }} found &mdash; {{ latest_job.finished_at.strftime('%b %-d, %Y %H:%M') if latest_job.finished_at else '' }}{% if latest_job.notes %} &mdash; {{ latest_job.notes }}{% endif %}</span>
+          {% elif latest_job.status == 'failed' %}
+            <span class="scrape-failed">Failed: {{ latest_job.error[:80] }}</span>
+          {% endif %}
+        {% else %}
+          <span class="scrape-idle">No scrapes run yet.</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ideas-toolbar">
+      <form method="get" class="ideas-filters">
+        <input type="search" name="q" value="{{ query }}" placeholder="Search…" class="ideas-search">
+        <select name="source">
+          <option value="">All sources</option>
+          {% for val, display in source_choices %}
+            <option value="{{ val }}"{% if active_source == val %} selected{% endif %}>{{ display }}</option>
+          {% endfor %}
+        </select>
+        <select name="label">
+          <option value="">All labels</option>
+          {% for val, display in label_choices %}
+            <option value="{{ val }}"{% if active_label == val %} selected{% endif %}>{{ display }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+        {% if active_source or active_label or query %}
+          <a href="{{ request.url_for('idea_list') }}" class="ideas-clear">Clear</a>
+        {% endif %}
+      </form>
+      <span class="ideas-count">{{ total }} post{{ total|pluralize }}</span>
+    </div>
+
+    {% if posts %}
+      <div class="ideas-list">
+        {% for post in posts %}
+          <article class="idea-card label-{{ post.label }}">
+            <div class="idea-meta">
+              <span class="idea-source">{{ post.get_source_display }}</span>
+              <span class="idea-community">{{ post.community }}</span>
+              <span class="idea-label">{{ post.get_label_display }}</span>
+              {% if post.monetary_amounts %}
+                <span class="idea-money">{{ post.monetary_amounts|join(', ') }}</span>
+              {% endif %}
+            </div>
+            <h2 class="idea-title">
+              <a href="{{ request.url_for('idea_detail', pk=post.id) }}">{{ (post.title or post.body)|truncate(120, true) }}</a>
+            </h2>
+            {% if post.title and post.body %}
+              <p class="idea-excerpt">{{ post.body|truncate(200, true) }}</p>
+            {% endif %}
+            <div class="idea-footer">
+              <span>↑ {{ post.score }}</span>
+              <span>{{ post.num_comments }} comments</span>
+              <span>{{ post.posted_at.strftime('%b %-d, %Y') if post.posted_at else '' }}</span>
+              <a href="{{ post.url }}" target="_blank" rel="noopener">Original ↗</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="ideas-empty">No posts yet — run a scrape above to populate.</p>
+    {% endif %}
+
+  </main>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('scrape-form');
+  const btn = document.getElementById('scrape-btn');
+  const statusEl = document.getElementById('scrape-status');
+  const statusBase = "{{ request.url_for('scrape_status', job_id=0) }}";
+  let pollTimer = null;
+
+  function setStatus(html) { statusEl.innerHTML = html; }
+
+  function poll(jobId) {
+    fetch(statusBase.replace('/0/', '/' + jobId + '/'))
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'running' || data.status === 'pending') {
+          setStatus('<span class="scrape-running">Scraping…</span>');
+          pollTimer = setTimeout(() => poll(jobId), 3000);
+        } else if (data.status === 'done') {
+          btn.disabled = false;
+          btn.textContent = 'Run Scrape';
+          var detail = data.notes ? ' — ' + data.notes : '';
+          setStatus('<span class="scrape-done">Done: ' + data.posts_created + ' new / ' + data.posts_found + ' found' + detail + '</span>');
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Run Scrape';
+          setStatus('<span class="scrape-failed">Failed: ' + (data.error || 'unknown error') + '</span>');
+        }
+      })
+      .catch(() => { pollTimer = setTimeout(() => poll(jobId), 5000); });
+  }
+
+  const activeEl = statusEl.querySelector('[data-job]');
+  if (activeEl) {
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+    poll(parseInt(activeEl.dataset.job, 10));
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Starting…';
+    setStatus('<span class="scrape-running">Starting scrape…</span>');
+
+    const fd = new FormData(form);
+    fetch(form.action, { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          btn.disabled = false;
+          btn.textContent = 'Run Scrape';
+          setStatus('<span class="scrape-failed">' + data.error + '</span>');
+        } else {
+          btn.textContent = 'Running…';
+          setStatus('<span class="scrape-running">Scraping…</span>');
+          poll(data.job_id);
+        }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.textContent = 'Run Scrape';
+        setStatus('<span class="scrape-failed">Request failed.</span>');
+      });
+  });
+})();
+</script>
+{% endblock %}

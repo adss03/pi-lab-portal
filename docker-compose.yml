@@ -21,21 +21,21 @@ services:
       db:
         condition: service_healthy
     environment:
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost}
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG:-False}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: db
       MEDIA_ROOT: /media
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+      REDDIT_USER_AGENT: ${REDDIT_USER_AGENT:-pi-lab-portal/1.0}
     volumes:
-      - staticfiles:/app/staticfiles
-      - ${MEDIA_PATH:-./portal/media}:/media
-    command: >
-      sh -c "python manage.py migrate --noinput &&
-             gunicorn portal.wsgi:application --bind 0.0.0.0:8000 --workers 1"
+      - ${MEDIA_PATH:-./app/media}:/media
+      - /sys/devices/platform/cooling_fan:/sys/devices/platform/cooling_fan
 
   nginx:
     image: nginx:alpine
@@ -46,9 +46,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - staticfiles:/app/staticfiles:ro
-      - ${MEDIA_PATH:-./portal/media}:/media:ro
+      - ${MEDIA_PATH:-./app/media}:/media:ro
 
 volumes:
   pgdata:
-  staticfiles:

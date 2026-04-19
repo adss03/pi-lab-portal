@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pi Lab Portal{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{{ request.url_for('static', path='css/main.css') }}">
+    <script>
+    (function () {
+      var t = localStorage.getItem('theme') || 'dark';
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var nav = document.querySelector('.header-nav');
+        if (!nav) return;
+        var btn = document.createElement('button');
+        btn.className = 'theme-toggle';
+        btn.textContent = t === 'light' ? 'Dark' : 'Light';
+        btn.onclick = function () {
+          var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+          var next = cur === 'light' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+          btn.textContent = next === 'light' ? 'Dark' : 'Light';
+        };
+        nav.prepend(btn);
+      });
+    })();
+    </script>
+</head>
+<body>
+{% block content %}{% endblock %}
+</body>
+</html>

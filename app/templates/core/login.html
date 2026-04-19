@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="login-inner">
+    <div class="login-mark"><b>Pi</b> Lab Portal</div>
+    <h1>Sign in</h1>
+    <form method="post" action="{{ request.url_for('login') }}">
+      <div class="login-field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password">
+      </div>
+      <button type="submit">Sign in</button>
+    </form>
+    {% if error %}
+    <p class="login-error">{{ error }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

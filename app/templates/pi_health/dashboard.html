@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}Pi Health — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <a href="{{ request.url_for('dashboard') }}" class="header-brand"><b>Pi</b> Lab Portal</a>
+    <nav class="header-nav">
+      <span id="ph-status" class="ph-status">connecting</span>
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">Sign out</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2 class="page-heading">Pi Health</h2>
+    <p class="page-sub">Real-time system metrics</p>
+
+    <div class="ph-grid">
+      <div class="ph-stat">
+        <div class="ph-stat-label">CPU</div>
+        <div class="ph-gauge">
+          <canvas id="cpu-donut" width="80" height="80"></canvas>
+          <div class="ph-gauge-label" id="cpu-pct">—</div>
+        </div>
+        <div class="ph-stat-sub" id="cpu-sub">—</div>
+      </div>
+
+      <div class="ph-stat">
+        <div class="ph-stat-label">Memory</div>
+        <div class="ph-gauge">
+          <canvas id="mem-donut" width="80" height="80"></canvas>
+          <div class="ph-gauge-label" id="mem-pct">—</div>
+        </div>
+        <div class="ph-stat-sub" id="mem-sub">—</div>
+      </div>
+
+      <div class="ph-stat">
+        <div class="ph-stat-label">Disk</div>
+        <div class="ph-gauge">
+          <canvas id="disk-donut" width="80" height="80"></canvas>
+          <div class="ph-gauge-label" id="disk-pct">—</div>
+        </div>
+        <div class="ph-stat-sub" id="disk-sub">—</div>
+      </div>
+
+      <div class="ph-stat">
+        <div class="ph-stat-label">Temperature</div>
+        <div class="ph-temp-body">
+          <div class="ph-temp-num" id="temp-val">—</div>
+          <div class="ph-stat-sub" id="load-val">load —</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ph-charts">
+      <div class="ph-chart-card">
+        <div class="ph-chart-title">CPU History <span class="ph-chart-sub">1 min</span></div>
+        <div class="ph-chart-wrap"><canvas id="cpu-line"></canvas></div>
+      </div>
+      <div class="ph-chart-card">
+        <div class="ph-chart-title">Network I/O <span class="ph-chart-sub">KB/s</span></div>
+        <div class="ph-chart-wrap"><canvas id="net-line"></canvas></div>
+      </div>
+    </div>
+
+    <div class="ph-fan-wrap">
+      <div class="ph-fan-card">
+        <div class="ph-chart-title">Fan Control</div>
+        <div class="ph-fan-controls">
+          <div class="ph-fan-field">
+            <label class="ph-fan-label">Duration (s)</label>
+            <input type="number" id="fan-secs" class="ph-fan-input" value="30" min="1" max="3600">
+          </div>
+          <div class="ph-fan-field">
+            <label class="ph-fan-label">Speed <span id="fan-speed-val">255</span>/255</label>
+            <input type="range" id="fan-speed" class="ph-fan-range" value="255" min="0" max="255">
+          </div>
+          <button id="fan-btn" class="ph-fan-btn">Spin</button>
+        </div>
+        <div class="ph-fan-status" id="fan-status">idle</div>
+      </div>
+    </div>
+
+    <div class="ph-footer">
+      <span id="uptime-val" class="ph-uptime">uptime —</span>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const isDark    = (localStorage.getItem('theme') || 'dark') !== 'light';
+  const textColor  = isDark ? '#8a8680' : '#5a5550';
+  const gridColor  = isDark ? '#1e1e1e' : '#d4cfc6';
+  const emptyColor = isDark ? '#2c2c2c' : '#c4bfb6';
+
+  const BLUE   = '#5b9cf6';
+  const PURPLE = '#9b7fd4';
+  const AMBER  = '#d4944a';
+  const GREEN  = '#4caf7d';
+  const POINTS = 30;
+
+  Chart.defaults.color = textColor;
+  Chart.defaults.borderColor = gridColor;
+
+  function mkDonut(id, color) {
+    return new Chart(document.getElementById(id), {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [0, 100],
+          backgroundColor: [color, emptyColor],
+          borderWidth: 0,
+          hoverOffset: 0,
+        }]
+      },
+      options: {
+        responsive: false,
+        cutout: '78%',
+        animation: { duration: 500 },
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      }
+    });
+  }
+
+  function mkLine(id, datasets, yMax) {
+    return new Chart(document.getElementById(id), {
+      type: 'line',
+      data: {
+        labels: Array(POINTS).fill(''),
+        datasets: datasets.map(d => ({
+          ...d,
+          data: Array(POINTS).fill(null),
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: true,
+        })),
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        scales: {
+          x: { display: false },
+          y: {
+            min: 0,
+            ...(yMax !== undefined ? { max: yMax } : {}),
+            ticks: { font: { family: 'IBM Plex Mono', size: 10 }, maxTicksLimit: 4 },
+            grid: { color: gridColor },
+          },
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 10, padding: 12 },
+          },
+          tooltip: { enabled: false },
+        },
+      },
+    });
+  }
+
+  const cpuDonut  = mkDonut('cpu-donut', BLUE);
+  const memDonut  = mkDonut('mem-donut', PURPLE);
+  const diskDonut = mkDonut('disk-donut', AMBER);
+
+  const cpuLine = mkLine('cpu-line', [
+    { label: 'CPU %', borderColor: BLUE, backgroundColor: BLUE + '18' },
+  ], 100);
+
+  const netLine = mkLine('net-line', [
+    { label: 'Send', borderColor: GREEN, backgroundColor: GREEN + '18' },
+    { label: 'Recv', borderColor: BLUE,  backgroundColor: BLUE  + '18' },
+  ]);
+
+  function pushLine(chart, values) {
+    values.forEach((v, i) => {
+      chart.data.datasets[i].data.push(v);
+      chart.data.datasets[i].data.shift();
+    });
+    chart.update('none');
+  }
+
+  function fmtUptime(s) {
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return (d ? d + 'd ' : '') + (h ? h + 'h ' : '') + m + 'm';
+  }
+
+  const statusEl  = document.getElementById('ph-status');
+  const cpuPct    = document.getElementById('cpu-pct');
+  const cpuSub    = document.getElementById('cpu-sub');
+  const memPct    = document.getElementById('mem-pct');
+  const memSub    = document.getElementById('mem-sub');
+  const diskPct   = document.getElementById('disk-pct');
+  const diskSub   = document.getElementById('disk-sub');
+  const tempVal   = document.getElementById('temp-val');
+  const loadVal   = document.getElementById('load-val');
+  const uptimeVal = document.getElementById('uptime-val');
+
+  const es = new EventSource("{{ request.url_for('pi_health_stream') }}");
+
+  es.onopen = () => {
+    statusEl.textContent = 'live';
+    statusEl.className = 'ph-status ph-live';
+  };
+  es.onerror = () => {
+    statusEl.textContent = 'disconnected';
+    statusEl.className = 'ph-status ph-dead';
+  };
+
+  es.onmessage = (e) => {
+    const d = JSON.parse(e.data);
+
+    cpuDonut.data.datasets[0].data = [d.cpu, 100 - d.cpu];
+    cpuDonut.update('none');
+    cpuPct.textContent = d.cpu + '%';
+    cpuSub.textContent = 'load ' + d.load1;
+
+    memDonut.data.datasets[0].data = [d.mem_pct, 100 - d.mem_pct];
+    memDonut.update('none');
+    memPct.textContent = d.mem_pct + '%';
+    memSub.textContent = d.mem_used + ' / ' + d.mem_total + ' GB';
+
+    diskDonut.data.datasets[0].data = [d.disk_pct, 100 - d.disk_pct];
+    diskDonut.update('none');
+    diskPct.textContent = d.disk_pct + '%';
+    diskSub.textContent = d.disk_used + ' / ' + d.disk_total + ' GB';
+
+    if (d.temp !== null) {
+      tempVal.textContent = d.temp + '°C';
+      tempVal.className = 'ph-temp-num' + (d.temp > 75 ? ' hot' : '');
+    }
+    loadVal.textContent = 'load ' + d.load1;
+
+    pushLine(cpuLine, [d.cpu]);
+    pushLine(netLine, [d.net_send, d.net_recv]);
+
+    uptimeVal.textContent = 'uptime ' + fmtUptime(d.uptime);
+  };
+  // Fan control
+  const fanSecsEl     = document.getElementById('fan-secs');
+  const fanSpeedEl    = document.getElementById('fan-speed');
+  const fanSpeedValEl = document.getElementById('fan-speed-val');
+  const fanBtn        = document.getElementById('fan-btn');
+  const fanStatusEl   = document.getElementById('fan-status');
+  let fanPoll = null;
+
+  fanSpeedEl.addEventListener('input', () => {
+    fanSpeedValEl.textContent = fanSpeedEl.value;
+  });
+
+  fanBtn.addEventListener('click', async () => {
+    const fd = new FormData();
+    fd.append('seconds', fanSecsEl.value);
+    fd.append('speed', fanSpeedEl.value);
+    fanBtn.disabled = true;
+
+    const res  = await fetch("{{ request.url_for('pi_health_fan_spin') }}", { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (!res.ok) {
+      fanStatusEl.textContent = data.error || 'error';
+      fanStatusEl.className = 'ph-fan-status ph-fan-err';
+      fanBtn.disabled = false;
+      return;
+    }
+    startFanPoll();
+  });
+
+  function startFanPoll() {
+    if (fanPoll) clearInterval(fanPoll);
+    fanPoll = setInterval(refreshFanStatus, 1000);
+    refreshFanStatus();
+  }
+
+  async function refreshFanStatus() {
+    const res  = await fetch("{{ request.url_for('pi_health_fan_status') }}");
+    const data = await res.json();
+    if (data.spinning) {
+      fanStatusEl.textContent = `spinning — ${data.seconds_remaining}s remaining at ${data.speed}/255`;
+      fanStatusEl.className = 'ph-fan-status ph-fan-on';
+      fanBtn.disabled = true;
+    } else {
+      fanStatusEl.textContent = 'idle';
+      fanStatusEl.className = 'ph-fan-status';
+      fanBtn.disabled = false;
+      if (fanPoll) { clearInterval(fanPoll); fanPoll = null; }
+    }
+  }
+
+  refreshFanStatus();
+})();
+</script>
+{% endblock %}

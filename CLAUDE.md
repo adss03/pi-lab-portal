@@ -1,47 +1,66 @@
 # pi-lab-portal — Claude Configuration
 
 ## Project Overview
-A Django-based homelab portal for a Raspberry Pi, containerized with Docker and exposed via Tailscale serve. Provides a central login page with access to modular apps (media archive, and future apps).
+A FastAPI-based homelab portal for a Raspberry Pi, containerized with Docker and exposed via Tailscale serve. Provides a central login page with access to modular apps (SaaS Ideas scraper, and future apps).
 
 ## Architecture
 
 ### Stack
-- **Backend**: Django (Python)
+- **Backend**: FastAPI (Python), Uvicorn ASGI server
 - **Database**: PostgreSQL 16, runs in its own container with named volume
-- **Media Storage**: Local volume mount for photos/videos (bind mount to NAS or Pi storage path)
+- **ORM**: SQLModel (SQLAlchemy + Pydantic)
+- **Templates**: Jinja2 (server-rendered HTML)
+- **Auth**: Session-based (Starlette SessionMiddleware, itsdangerous signed cookies)
+- **Media Storage**: Local volume mount (bind mount to NAS or Pi storage path)
 - **Container**: Docker Compose — one compose file manages all services
-- **Reverse Proxy**: Nginx (in Docker) → Django (gunicorn)
-- **Auth**: Django's built-in auth (login required on all non-public routes)
+- **Reverse Proxy**: Nginx (in Docker) → FastAPI (uvicorn)
 - **Exposed via**: Tailscale serve pointing at Nginx container port
 
 ### Services (docker-compose.yml)
 | Service | Image | Notes |
 |---|---|---|
 | `db` | postgres:16-alpine | Named volume `pgdata` |
-| `web` | custom Django image | Gunicorn, depends on `db` |
-| `nginx` | nginx:alpine | Proxies to `web`, serves media/static |
+| `web` | custom FastAPI image | Uvicorn single worker, depends on `db` |
+| `nginx` | nginx:alpine | Proxies to `web` and serves media |
 
 ### App Structure
 ```
-portal/          # Django project root
-  apps/
-    core/        # Login, dashboard, user management
-  static/
-  media/         # Served by Nginx, bind-mounted to Pi storage
+app/
+  main.py          # FastAPI app, lifespan, exception handlers
+  config.py        # Pydantic settings (from env vars)
+  database.py      # SQLModel engine, session dependency, init_db()
+  models.py        # User, ScrapeJob, IdeaPost, classify_post(), constants
+  auth.py          # require_auth dependency, password hashing
+  jobs.py          # Threaded scrape job runner
+  templates_config.py  # Jinja2Templates instance + custom filters
+  routers/
+    core.py        # /login, /logout, / (dashboard)
+    saas_ideas.py  # /ideas/ routes
+  scrapers/
+    reddit.py
+    hackernews.py
+    indiehackers.py
+  static/css/
+  templates/
 ```
+
+### Key Design Decisions
+- **No Alembic**: `SQLModel.metadata.create_all()` on startup — fine for homelab
+- **Admin user**: Created on startup from `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars if not present
+- **No CSRF**: Homelab behind Tailscale; SessionMiddleware with secure signed cookies
+- **Static files**: Served by Uvicorn (`StaticFiles` mount at `/static`); Nginx proxies everything
+- **No Django admin**: Use the existing list/filter UI for data browsing
 
 ## Conventions
 - Python: follow PEP8, no unused imports
-- Django apps in `portal/apps/`
 - All secrets via environment variables (`.env` file, never committed)
 - `requirements.txt` pinned versions
-- Migrations committed to repo
 - No test stubs unless writing real tests
 
 ## Docker
 - `docker-compose.yml` at repo root
 - `.env.example` committed, `.env` gitignored
-- Static files collected to `staticfiles/` volume at build/startup
+- No collectstatic — static files served directly from `app/static/`
 - Health checks on `db` service before `web` starts
 
 ## What NOT to do
@@ -49,10 +68,11 @@ portal/          # Django project root
 - Don't store binary media in the database
 - Don't add comments explaining what code does — only non-obvious WHY comments
 - Don't add placeholder/stub apps — implement or leave out
+- Don't add Alembic unless schema migrations become necessary
 
-## Baseline Definition of Done
-The initial scaffold is complete when:
+## Definition of Done
 - `docker compose up` brings all three services healthy
-- `http://localhost` (via Nginx) redirects to `/login/`
+- `http://localhost` (via Nginx) → `/login/`
 - A logged-in user reaches the dashboard
 - Static files load without 404s
+- SaaS ideas list, detail, and scrape all work

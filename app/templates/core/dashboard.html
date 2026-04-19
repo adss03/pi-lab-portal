@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <span class="header-brand"><b>Pi</b> Lab Portal</span>
+    <nav class="header-nav">
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">Sign out</a>
+    </nav>
+  </header>
+  <main>
+    <h2 class="page-heading">Dashboard</h2>
+    <p class="page-sub">Your homelab, in one place.</p>
+    <div class="app-cards">
+      <a href="{{ request.url_for('idea_list') }}" class="app-card">
+        <div class="app-card-tag">App</div>
+        <h3>SaaS Ideas</h3>
+        <p>B2B pain points from Reddit, HN &amp; Indie Hackers</p>
+      </a>
+      <a href="{{ request.url_for('pi_health') }}" class="app-card">
+        <div class="app-card-tag">System</div>
+        <h3>Pi Health</h3>
+        <p>Real-time CPU, memory, disk &amp; temperature</p>
+      </a>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title or "Post" }} — SaaS Ideas{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <a href="{{ request.url_for('dashboard') }}" class="header-brand"><b>Pi</b> Lab Portal</a>
+    <nav class="header-nav">
+      <a href="{{ request.url_for('idea_list') }}">← Ideas</a>
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">Sign out</a>
+    </nav>
+  </header>
+
+  <main>
+    <article class="idea-detail label-{{ post.label }}">
+      <div class="idea-meta">
+        <span class="idea-source">{{ post.get_source_display }}</span>
+        <span class="idea-community">{{ post.community }}</span>
+        <span class="idea-label">{{ post.get_label_display }}</span>
+        {% if post.monetary_amounts %}
+          <span class="idea-money">{{ post.monetary_amounts|join(', ') }}</span>
+        {% endif %}
+      </div>
+
+      {% if post.title %}
+        <h2 class="idea-title">{{ post.title }}</h2>
+      {% endif %}
+
+      <div class="idea-body">{{ post.body|linebreaks }}</div>
+
+      <div class="idea-footer">
+        <span>↑ {{ post.score }}</span>
+        <span>{{ post.num_comments }} comments</span>
+        {% if post.author %}<span>by {{ post.author }}</span>{% endif %}
+        <span>{{ post.posted_at.strftime('%b %-d, %Y') if post.posted_at else '' }}</span>
+        <a href="{{ post.url }}" target="_blank" rel="noopener">View original ↗</a>
+      </div>
+    </article>
+  </main>
+</div>
+{% endblock %}
