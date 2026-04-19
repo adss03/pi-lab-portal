@@ -1,0 +1,6 @@
+asgiref==3.11.1
+django==6.0.4
+gunicorn==25.3.0
+packaging==26.1
+psycopg2-binary==2.9.11
+sqlparse==0.5.5

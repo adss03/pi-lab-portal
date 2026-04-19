@@ -1,0 +1,36 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: system-ui, sans-serif;
+    background: #0f0f0f;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+.login-wrap {
+    max-width: 360px;
+    margin: 15vh auto;
+    padding: 2rem;
+    background: #1a1a1a;
+    border-radius: 8px;
+}
+
+.login-wrap h1 { margin-bottom: 1.5rem; font-size: 1.4rem; }
+.login-wrap p { margin-bottom: 0.75rem; }
+.login-wrap input { width: 100%; padding: 0.5rem; background: #2a2a2a; border: 1px solid #444; color: inherit; border-radius: 4px; }
+.login-wrap button { margin-top: 1rem; width: 100%; padding: 0.6rem; background: #3a7bd5; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+.login-wrap .error { color: #f87171; margin-top: 0.75rem; }
+
+.dashboard-wrap header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #1a1a1a;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.dashboard-wrap header nav { display: flex; gap: 1rem; align-items: center; }
+.dashboard-wrap header a { color: #3a7bd5; text-decoration: none; }
+.dashboard-wrap header nav button { background: none; border: none; color: #3a7bd5; cursor: pointer; font: inherit; padding: 0; }
+.dashboard-wrap main { padding: 2rem; }
