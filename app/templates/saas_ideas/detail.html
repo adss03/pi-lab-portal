@@ -14,9 +14,9 @@
   <main>
     <article class="idea-detail label-{{ post.label }}">
       <div class="idea-meta">
-        <span class="idea-source">{{ post.get_source_display }}</span>
+        <span class="idea-source">{{ post.source_display }}</span>
         <span class="idea-community">{{ post.community }}</span>
-        <span class="idea-label">{{ post.get_label_display }}</span>
+        <span class="idea-label">{{ post.label_display }}</span>
         {% if post.monetary_amounts %}
           <span class="idea-money">{{ post.monetary_amounts|join(', ') }}</span>
         {% endif %}

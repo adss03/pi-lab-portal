@@ -136,7 +136,8 @@ async def fan_spin(
             pass
 
     try:
-        original = open(path).read().strip()
+        with open(path) as f:
+            original = f.read().strip()
     except PermissionError:
         return JSONResponse({"error": "Permission denied writing to PWM"}, status_code=403)
 

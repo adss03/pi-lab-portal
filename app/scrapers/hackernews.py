@@ -4,38 +4,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
-from app.models import classify_post
+from app.models import classify_post, has_signal
 
 logger = logging.getLogger(__name__)
 
 FIREBASE = 'https://hacker-news.firebaseio.com/v0'
 SESSION = requests.Session()
 SESSION.headers['User-Agent'] = 'pi-lab-portal/1.0'
-
-PAYMENT_PHRASES = [
-    'i would pay',
-    'would pay for',
-    'willing to pay',
-    'would pay $',
-    'pay per month',
-    'pay monthly',
-    '/month',
-    '/mo',
-]
-IDEA_PHRASES = [
-    'someone should build',
-    'wish there was',
-    "why doesn't this exist",
-    'looking for a tool',
-    'need a product',
-    'would love a tool',
-]
-ALL_PHRASES = PAYMENT_PHRASES + IDEA_PHRASES
-
-
-def _matches(text: str) -> bool:
-    t = text.lower()
-    return any(p in t for p in ALL_PHRASES)
 
 
 def _fetch_item(item_id: int) -> dict | None:
@@ -104,7 +79,7 @@ def scrape() -> list[dict]:
             if not item_id or item_id in seen:
                 continue
             text = f"{item.get('title', '')} {item.get('text', '')}"
-            if not _matches(text):
+            if not has_signal(text):
                 continue
             seen.add(item_id)
             results.append(_item_to_record(item))

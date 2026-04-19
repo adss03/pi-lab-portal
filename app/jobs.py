@@ -2,7 +2,7 @@ import datetime
 import logging
 import threading
 
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from app.database import engine
 from app.models import IdeaPost, ScrapeJob
@@ -47,10 +47,15 @@ def _run(job_id: int, source: str) -> None:
 
         created = 0
         with Session(engine) as session:
+            post_ids = [d["post_id"] for d in all_results]
+            existing_map = {
+                p.post_id: p
+                for p in session.exec(
+                    select(IdeaPost).where(col(IdeaPost.post_id).in_(post_ids))
+                ).all()
+            }
             for data in all_results:
-                existing = session.exec(
-                    select(IdeaPost).where(IdeaPost.post_id == data["post_id"])
-                ).first()
+                existing = existing_map.get(data["post_id"])
                 if existing:
                     for k, v in data.items():
                         setattr(existing, k, v)

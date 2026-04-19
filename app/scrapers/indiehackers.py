@@ -10,11 +10,12 @@ from app.models import classify_post
 logger = logging.getLogger(__name__)
 
 BASE_URL = 'https://www.indiehackers.com'
-HEADERS = {
+SESSION = requests.Session()
+SESSION.headers.update({
     'User-Agent': 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 pi-lab-portal/1.0',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en-US,en;q=0.5',
-}
+})
 
 QUERIES = [
     'I would pay',
@@ -31,10 +32,9 @@ def scrape() -> list[dict]:
 
     for query in QUERIES:
         try:
-            resp = requests.get(
+            resp = SESSION.get(
                 f'{BASE_URL}/search',
                 params={'q': query, 'type': 'post'},
-                headers=HEADERS,
                 timeout=15,
             )
             resp.raise_for_status()

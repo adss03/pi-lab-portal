@@ -33,6 +33,13 @@ _WHY_NOT_PATTERNS = [
 _CURRENCY_RE = re.compile(r'\$\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?')
 
 
+def has_signal(text: str) -> bool:
+    return any(
+        p.search(text)
+        for p in _PAYMENT_PATTERNS + _WISHLIST_PATTERNS + _WHY_NOT_PATTERNS
+    )
+
+
 def classify_post(text: str) -> tuple[str, list[str]]:
     amounts = _CURRENCY_RE.findall(text)
     for pat in _PAYMENT_PATTERNS:
@@ -101,9 +108,9 @@ class IdeaPost(SQLModel, table=True):
     scraped_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
-    def get_source_display(self) -> str:
+    def source_display(self) -> str:
         return _SOURCE_DISPLAY.get(self.source, self.source)
 
     @property
-    def get_label_display(self) -> str:
+    def label_display(self) -> str:
         return _LABEL_DISPLAY.get(self.label, self.label)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlmodel import Session, col, select
 
 from app import jobs
@@ -35,8 +35,8 @@ def idea_list(
             )
         )
 
-    all_posts = session.exec(stmt).all()
-    total = len(all_posts)
+    total = session.exec(select(func.count()).select_from(stmt.subquery())).one()
+    posts = session.exec(stmt.limit(300)).all()
 
     latest_job = session.exec(
         select(ScrapeJob).order_by(col(ScrapeJob.started_at).desc())
@@ -47,7 +47,7 @@ def idea_list(
         {
             "request": request,
             "user": user,
-            "posts": all_posts[:300],
+            "posts": posts,
             "source_choices": SOURCE_CHOICES,
             "label_choices": LABEL_CHOICES,
             "active_source": source,
@@ -72,7 +72,8 @@ def scrape_start(
     if active:
         return JSONResponse({"error": "A scrape is already running."}, status_code=409)
 
-    if source not in ("all", "reddit", "hackernews", "indiehackers"):
+    valid_sources = {"all"} | {val for val, _ in SOURCE_CHOICES}
+    if source not in valid_sources:
         source = "all"
 
     job = ScrapeJob(source=source)
