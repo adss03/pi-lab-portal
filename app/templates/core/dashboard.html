@@ -3,25 +3,77 @@
 {% block content %}
 <div class="dashboard-wrap">
   <header>
-    <span class="header-brand"><b>Pi</b> Lab Portal</span>
+    <div class="header-left">
+      <span class="led live"></span>
+      <span class="header-brand">PI LAB PORTAL</span>
+      <span class="header-sep"></span>
+      <span class="header-node">raspberrypi · local</span>
+    </div>
     <nav class="header-nav">
       <span class="header-user">{{ user.username }}</span>
-      <a href="{{ request.url_for('logout') }}">Sign out</a>
+      <a href="{{ request.url_for('logout') }}">sign out</a>
     </nav>
   </header>
+
   <main>
-    <h2 class="page-heading">Dashboard</h2>
-    <p class="page-sub">Your homelab, in one place.</p>
+    <div class="sys-strip">
+      <div class="sys-strip-item">
+        <span class="sys-strip-label">node</span>
+        <span class="sys-strip-value">raspberrypi</span>
+      </div>
+      <div class="sys-strip-div"></div>
+      <div class="sys-strip-item">
+        <span class="led live"></span>
+        <span class="sys-strip-label">status</span>
+        <span class="sys-strip-value ok">operational</span>
+      </div>
+      <div class="sys-strip-div"></div>
+      <div class="sys-strip-item">
+        <span class="sys-strip-label">modules</span>
+        <span class="sys-strip-value">3 active</span>
+      </div>
+      <div class="sys-strip-div"></div>
+      <div class="sys-strip-item">
+        <span class="sys-strip-label">access</span>
+        <span class="sys-strip-value">tailscale · private</span>
+      </div>
+    </div>
+
+    <h2 class="page-heading">Instrument Panel</h2>
+    <p class="page-sub">Select a module to open</p>
+
     <div class="app-cards">
       <a href="{{ request.url_for('idea_list') }}" class="app-card">
-        <div class="app-card-tag">App</div>
+        <div class="app-card-header">
+          <span class="app-card-ch">CH_01</span>
+          <span class="led live"></span>
+        </div>
+        <div class="app-card-tag">App · Research</div>
         <h3>SaaS Ideas</h3>
-        <p>B2B pain points from Reddit, HN &amp; Indie Hackers</p>
+        <p>B2B pain points scraped from Reddit, Hacker News &amp; Indie Hackers. Classify, filter, and track emerging opportunities.</p>
+        <div class="app-card-enter">→ enter</div>
       </a>
+
       <a href="{{ request.url_for('pi_health') }}" class="app-card">
-        <div class="app-card-tag">System</div>
+        <div class="app-card-header">
+          <span class="app-card-ch">CH_02</span>
+          <span class="led live"></span>
+        </div>
+        <div class="app-card-tag">System · Monitor</div>
         <h3>Pi Health</h3>
-        <p>Real-time CPU, memory, disk &amp; temperature</p>
+        <p>Real-time CPU, memory, disk &amp; thermal readings via server-sent events. Fan control included.</p>
+        <div class="app-card-enter">→ enter</div>
+      </a>
+
+      <a href="{{ request.url_for('pl_feed') }}" class="app-card">
+        <div class="app-card-header">
+          <span class="app-card-ch">CH_03</span>
+          <span class="led amber"></span>
+        </div>
+        <div class="app-card-tag">Sports · Live</div>
+        <h3>Premier League</h3>
+        <p>Live match feed — goals, cards &amp; substitutions streamed via SSE from the football-data.org API.</p>
+        <div class="app-card-enter">→ enter</div>
       </a>
     </div>
   </main>

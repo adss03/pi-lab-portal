@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     admin_username: str = "admin"
     admin_password: str = "changeme"
 
+    football_data_api_key: str = ""
+
     @property
     def database_url(self) -> str:
         return (

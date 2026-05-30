@@ -6,6 +6,7 @@
     <title>{% block title %}Pi Lab Portal{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oxanium:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ request.url_for('static', path='css/main.css') }}">
     <script>
     (function () {
@@ -17,13 +18,13 @@
         if (!nav) return;
         var btn = document.createElement('button');
         btn.className = 'theme-toggle';
-        btn.textContent = t === 'light' ? 'Dark' : 'Light';
+        btn.textContent = t === 'light' ? 'dark' : 'light';
         btn.onclick = function () {
           var cur = document.documentElement.getAttribute('data-theme') || 'dark';
           var next = cur === 'light' ? 'dark' : 'light';
           document.documentElement.setAttribute('data-theme', next);
           localStorage.setItem('theme', next);
-          btn.textContent = next === 'light' ? 'Dark' : 'Light';
+          btn.textContent = next === 'light' ? 'dark' : 'light';
         };
         nav.prepend(btn);
       });

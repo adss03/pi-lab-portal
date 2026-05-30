@@ -3,10 +3,13 @@
 {% block content %}
 <div class="dashboard-wrap">
   <header>
-    <a href="{{ request.url_for('dashboard') }}" class="header-brand"><b>Pi</b> Lab Portal</a>
+    <div class="header-left">
+      <span class="led live"></span>
+      <a href="{{ request.url_for('dashboard') }}" class="header-brand">PI LAB PORTAL</a>
+    </div>
     <nav class="header-nav">
       <span class="header-user">{{ user.username }}</span>
-      <a href="{{ request.url_for('logout') }}">Sign out</a>
+      <a href="{{ request.url_for('logout') }}">sign out</a>
     </nav>
   </header>
 

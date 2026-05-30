@@ -3,11 +3,14 @@
 {% block content %}
 <div class="dashboard-wrap">
   <header>
-    <a href="{{ request.url_for('dashboard') }}" class="header-brand"><b>Pi</b> Lab Portal</a>
+    <div class="header-left">
+      <span class="led live"></span>
+      <a href="{{ request.url_for('dashboard') }}" class="header-brand">PI LAB PORTAL</a>
+    </div>
     <nav class="header-nav">
       <span id="ph-status" class="ph-status">connecting</span>
       <span class="header-user">{{ user.username }}</span>
-      <a href="{{ request.url_for('logout') }}">Sign out</a>
+      <a href="{{ request.url_for('logout') }}">sign out</a>
     </nav>
   </header>
 
@@ -90,16 +93,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 (function () {
-  const isDark    = (localStorage.getItem('theme') || 'dark') !== 'light';
-  const textColor  = isDark ? '#8a8680' : '#5a5550';
-  const gridColor  = isDark ? '#1e1e1e' : '#d4cfc6';
-  const emptyColor = isDark ? '#2c2c2c' : '#c4bfb6';
+  const isDark     = (localStorage.getItem('theme') || 'dark') !== 'light';
+  const textColor  = isDark ? '#4b7a4b' : '#44603a';
+  const gridColor  = isDark ? '#1e2d1f' : '#d0ccbf';
+  const emptyColor = isDark ? '#28422a' : '#d0ccbf';
 
-  const BLUE   = '#5b9cf6';
-  const PURPLE = '#9b7fd4';
-  const AMBER  = '#d4944a';
-  const GREEN  = '#4caf7d';
-  const POINTS = 30;
+  const PHOSPHOR = isDark ? '#2eb82e' : '#276622';
+  const AMBER    = isDark ? '#c98a00' : '#8a5a00';
+  const BLUE     = isDark ? '#3088cc' : '#1a5898';
+  const CYAN     = isDark ? '#1e9aaa' : '#15788a';
+  const POINTS   = 30;
 
   Chart.defaults.color = textColor;
   Chart.defaults.borderColor = gridColor;
@@ -147,14 +150,14 @@
           y: {
             min: 0,
             ...(yMax !== undefined ? { max: yMax } : {}),
-            ticks: { font: { family: 'IBM Plex Mono', size: 10 }, maxTicksLimit: 4 },
+            ticks: { font: { family: 'Share Tech Mono', size: 10 }, maxTicksLimit: 4 },
             grid: { color: gridColor },
           },
         },
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { font: { family: 'IBM Plex Mono', size: 10 }, boxWidth: 10, padding: 12 },
+            labels: { font: { family: 'Share Tech Mono', size: 10 }, boxWidth: 10, padding: 12 },
           },
           tooltip: { enabled: false },
         },
@@ -162,17 +165,17 @@
     });
   }
 
-  const cpuDonut  = mkDonut('cpu-donut', BLUE);
-  const memDonut  = mkDonut('mem-donut', PURPLE);
-  const diskDonut = mkDonut('disk-donut', AMBER);
+  const cpuDonut  = mkDonut('cpu-donut',  PHOSPHOR);
+  const memDonut  = mkDonut('mem-donut',  AMBER);
+  const diskDonut = mkDonut('disk-donut', BLUE);
 
   const cpuLine = mkLine('cpu-line', [
-    { label: 'CPU %', borderColor: BLUE, backgroundColor: BLUE + '18' },
+    { label: 'CPU %', borderColor: PHOSPHOR, backgroundColor: PHOSPHOR + '22' },
   ], 100);
 
   const netLine = mkLine('net-line', [
-    { label: 'Send', borderColor: GREEN, backgroundColor: GREEN + '18' },
-    { label: 'Recv', borderColor: BLUE,  backgroundColor: BLUE  + '18' },
+    { label: 'Send', borderColor: PHOSPHOR, backgroundColor: PHOSPHOR + '22' },
+    { label: 'Recv', borderColor: CYAN,     backgroundColor: CYAN     + '22' },
   ]);
 
   function pushLine(chart, values) {

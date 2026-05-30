@@ -2,23 +2,38 @@
 {% block title %}Login — Pi Lab Portal{% endblock %}
 {% block content %}
 <div class="login-wrap">
-  <div class="login-inner">
-    <div class="login-mark"><b>Pi</b> Lab Portal</div>
-    <h1>Sign in</h1>
-    <form method="post" action="{{ request.url_for('login') }}">
-      <div class="login-field">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" autocomplete="username">
+  <div class="login-terminal">
+    <div class="login-title-bar">
+      <div class="login-title-dots">
+        <span class="login-title-dot"></span>
+        <span class="login-title-dot"></span>
+        <span class="login-title-dot"></span>
       </div>
-      <div class="login-field">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" autocomplete="current-password">
+      <span class="login-title-text">pi-lab-portal — authentication</span>
+    </div>
+    <div class="login-body">
+      <div class="login-sys-id">
+        SYS · <span class="ok">PI-LAB-01</span> &nbsp;/&nbsp;
+        NET · <span class="ok">tailscale</span> &nbsp;/&nbsp;
+        AUTH · <span class="ok">required</span>
       </div>
-      <button type="submit">Sign in</button>
-    </form>
-    {% if error %}
-    <p class="login-error">{{ error }}</p>
-    {% endif %}
+      <div class="login-heading">PI LAB PORTAL</div>
+      <div class="login-subheading">Authentication Required</div>
+      <form method="post" action="{{ request.url_for('login') }}">
+        <div class="login-field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" autocomplete="username" autofocus>
+        </div>
+        <div class="login-field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password">
+        </div>
+        <button type="submit">Authenticate</button>
+      </form>
+      {% if error %}
+      <p class="login-error">{{ error }}</p>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}
