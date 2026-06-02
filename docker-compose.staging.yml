@@ -1,0 +1,11 @@
+services:
+  db:
+    volumes:
+      - pgdata_staging:/var/lib/postgresql/data
+
+  nginx:
+    ports:
+      - "8081:80"
+
+volumes:
+  pgdata_staging:

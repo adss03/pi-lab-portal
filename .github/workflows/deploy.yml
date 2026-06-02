@@ -1,0 +1,65 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: production
+        type: choice
+        options: [production, staging]
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    concurrency:
+      group: deploy-${{ github.ref_name }}
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Connect to tailnet
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Write SSH key
+        run: |
+          echo "${{ secrets.PI_SSH_KEY }}" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+
+      - name: Deploy
+        env:
+          PI_HOST: ${{ vars.PI_HOST }}
+          PI_USER: ${{ vars.PI_USER }}
+          PI_DEPLOY_PATH: ${{ vars.PI_DEPLOY_PATH }}
+          REF: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF" == "main" ]]; then
+            COMPOSE_ARGS="-f docker-compose.yml"
+            ENV_FILE=".env"
+          else
+            COMPOSE_ARGS="-f docker-compose.yml -f docker-compose.staging.yml"
+            ENV_FILE=".env.staging"
+          fi
+
+          ssh -i /tmp/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            "${PI_USER}@${PI_HOST}" "
+              set -e
+              cd ${PI_DEPLOY_PATH}
+              git pull
+              docker compose ${COMPOSE_ARGS} --env-file ${ENV_FILE} up -d --build --remove-orphans
+              docker image prune -f
+            "
