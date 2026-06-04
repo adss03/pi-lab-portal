@@ -30,7 +30,7 @@
       <div class="sys-strip-div"></div>
       <div class="sys-strip-item">
         <span class="sys-strip-label">modules</span>
-        <span class="sys-strip-value">3 active</span>
+        <span class="sys-strip-value">1 active</span>
       </div>
       <div class="sys-strip-div"></div>
       <div class="sys-strip-item">
@@ -43,36 +43,14 @@
     <p class="page-sub">Select a module to open</p>
 
     <div class="app-cards">
-      <a href="{{ request.url_for('idea_list') }}" class="app-card">
-        <div class="app-card-header">
-          <span class="app-card-ch">CH_01</span>
-          <span class="led live"></span>
-        </div>
-        <div class="app-card-tag">App · Research</div>
-        <h3>SaaS Ideas</h3>
-        <p>B2B pain points scraped from Reddit, Hacker News &amp; Indie Hackers. Classify, filter, and track emerging opportunities.</p>
-        <div class="app-card-enter">→ enter</div>
-      </a>
-
       <a href="{{ request.url_for('pi_health') }}" class="app-card">
         <div class="app-card-header">
-          <span class="app-card-ch">CH_02</span>
+          <span class="app-card-ch">CH_01</span>
           <span class="led live"></span>
         </div>
         <div class="app-card-tag">System · Monitor</div>
         <h3>Pi Health</h3>
         <p>Real-time CPU, memory, disk &amp; thermal readings via server-sent events. Fan control included.</p>
-        <div class="app-card-enter">→ enter</div>
-      </a>
-
-      <a href="{{ request.url_for('pl_feed') }}" class="app-card">
-        <div class="app-card-header">
-          <span class="app-card-ch">CH_03</span>
-          <span class="led amber"></span>
-        </div>
-        <div class="app-card-tag">Sports · Live</div>
-        <h3>Premier League</h3>
-        <p>Live match feed — goals, cards &amp; substitutions streamed via SSE from the football-data.org API.</p>
         <div class="app-card-enter">→ enter</div>
       </a>
     </div>

@@ -11,7 +11,7 @@ from app.auth import hash_password
 from app.config import settings
 from app.database import engine, init_db
 from app.models import User
-from app.routers import core, pi_health, premier_league, saas_ideas
+from app.routers import core, pi_health
 
 logging.basicConfig(level=logging.INFO)
 
@@ -39,9 +39,7 @@ app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, max_age=86
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(core.router)
-app.include_router(saas_ideas.router)
 app.include_router(pi_health.router)
-app.include_router(premier_league.router)
 
 
 @app.exception_handler(HTTPException)

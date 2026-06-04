@@ -1,7 +1,7 @@
 # pi-lab-portal — Claude Configuration
 
 ## Project Overview
-A FastAPI-based homelab portal for a Raspberry Pi, containerized with Docker and exposed via Tailscale serve. Provides a central login page with access to modular apps (SaaS Ideas scraper, and future apps).
+A FastAPI-based homelab portal for a Raspberry Pi, containerized with Docker and exposed via Tailscale serve. Provides a central login page with access to modular apps.
 
 ## Architecture
 
@@ -29,17 +29,12 @@ app/
   main.py          # FastAPI app, lifespan, exception handlers
   config.py        # Pydantic settings (from env vars)
   database.py      # SQLModel engine, session dependency, init_db()
-  models.py        # User, ScrapeJob, IdeaPost, classify_post(), constants
+  models.py        # User model
   auth.py          # require_auth dependency, password hashing
-  jobs.py          # Threaded scrape job runner
   templates_config.py  # Jinja2Templates instance + custom filters
   routers/
     core.py        # /login, /logout, / (dashboard)
-    saas_ideas.py  # /ideas/ routes
-  scrapers/
-    reddit.py
-    hackernews.py
-    indiehackers.py
+    pi_health.py   # /pi-health/ routes
   static/css/
   templates/
 ```
@@ -49,7 +44,6 @@ app/
 - **Admin user**: Created on startup from `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars if not present
 - **No CSRF**: Homelab behind Tailscale; SessionMiddleware with secure signed cookies
 - **Static files**: Served by Uvicorn (`StaticFiles` mount at `/static`); Nginx proxies everything
-- **No Django admin**: Use the existing list/filter UI for data browsing
 
 ## Conventions
 - Python: follow PEP8, no unused imports
@@ -75,4 +69,3 @@ app/
 - `http://localhost` (via Nginx) → `/login/`
 - A logged-in user reaches the dashboard
 - Static files load without 404s
-- SaaS ideas list, detail, and scrape all work

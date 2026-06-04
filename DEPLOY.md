@@ -45,7 +45,7 @@ ssh-copy-id -i ~/.ssh/pi_deploy_key.pub <pi-user>@<pi-hostname>
 ### Tailscale OAuth Client
 
 1. Go to [admin.tailscale.com → Settings → OAuth clients](https://login.tailscale.com/admin/settings/oauth)
-2. Create a client with **Devices → Write** scope and tag `tag:ci`
+2. Create a client with **Devices → Core → Write** scope and tag `tag:ci`
 3. Add the ACL tag to your Tailscale policy:
    ```json
    "tagOwners": {
