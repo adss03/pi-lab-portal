@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{% if note %}Edit Note{% else %}New Note{% endif %} — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <div class="header-left">
+      <span class="led live"></span>
+      <a href="{{ request.url_for('dashboard') }}" class="header-brand">PI LAB PORTAL</a>
+    </div>
+    <nav class="header-nav">
+      <a href="{{ request.url_for('notes_list') }}">← notes</a>
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">sign out</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2 class="page-heading">{% if note %}Edit Note{% else %}New Note{% endif %}</h2>
+    <p class="page-sub">{% if note %}update title, body, or tag{% else %}write something worth keeping{% endif %}</p>
+
+    <form method="post" action="{% if note %}/notes/{{ note.id }}/edit/{% else %}/notes/new/{% endif %}" class="note-form">
+      <div class="note-form-field">
+        <label class="note-form-label">title</label>
+        <input type="text" name="title" class="note-form-input" value="{{ note.title if note else '' }}" required autofocus>
+      </div>
+
+      <div class="note-form-field">
+        <label class="note-form-label">tag</label>
+        <select name="tag" class="note-form-select">
+          {% for t in tags %}
+          <option value="{{ t }}" {% if note and note.tag == t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="note-form-field">
+        <label class="note-form-label">body</label>
+        <textarea name="body" class="note-form-textarea" rows="18" required>{{ note.body if note else '' }}</textarea>
+      </div>
+
+      <div class="note-form-actions">
+        <button type="submit" class="note-action-btn">{% if note %}save changes{% else %}create note{% endif %}</button>
+        <a href="{% if note %}/notes/{{ note.id }}/{% else %}/notes/{% endif %}" class="note-action-btn secondary">cancel</a>
+      </div>
+    </form>
+  </main>
+</div>
+{% endblock %}

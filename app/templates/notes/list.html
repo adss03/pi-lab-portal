@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Notes — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <div class="header-left">
+      <span class="led live"></span>
+      <a href="{{ request.url_for('dashboard') }}" class="header-brand">PI LAB PORTAL</a>
+    </div>
+    <nav class="header-nav">
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">sign out</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2 class="page-heading">Notes</h2>
+    <p class="page-sub">Engineering notes and documentation</p>
+
+    <div class="notes-toolbar">
+      <div class="notes-filters">
+        <a href="{{ request.url_for('notes_list') }}" class="notes-tag-btn{% if not active_tag %} active{% endif %}">all</a>
+        {% for t in tags %}
+        <a href="{{ request.url_for('notes_list') }}?tag={{ t }}" class="notes-tag-btn{% if active_tag == t %} active{% endif %}">{{ t }}</a>
+        {% endfor %}
+      </div>
+      <a href="{{ request.url_for('notes_new') }}" class="notes-new-btn">+ new note</a>
+    </div>
+
+    {% if notes %}
+    <div class="notes-list">
+      {% for note in notes %}
+      <a href="{{ request.url_for('notes_detail', note_id=note.id) }}" class="note-row">
+        <div class="note-row-left">
+          <span class="note-tag-chip tag-{{ note.tag }}">{{ note.tag }}</span>
+          <span class="note-row-title">{{ note.title }}</span>
+        </div>
+        <span class="note-row-date">{{ note.updated_at.strftime('%Y-%m-%d') }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="notes-empty">no notes{% if active_tag %} tagged <code>{{ active_tag }}</code>{% endif %} — <a href="{{ request.url_for('notes_new') }}">create one</a></div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}
