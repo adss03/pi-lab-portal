@@ -1215,6 +1215,244 @@ body > * { position: relative; z-index: 1; }
 .pl-sub-arr { color: var(--phosphor); }
 .pl-sub-out { color: var(--muted); }
 
+/* ─── Notes ─────────────────────────────────────────────────────── */
+
+.notes-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.notes-filters {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.notes-tag-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  padding: 0.22rem 0.65rem;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.notes-tag-btn:hover,
+.notes-tag-btn.active { border-color: var(--phosphor); color: var(--phosphor); }
+
+.notes-new-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  padding: 0.22rem 0.75rem;
+  border: 1px solid var(--phosphor);
+  color: var(--phosphor);
+  text-decoration: none;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.notes-new-btn:hover { background: var(--phosphor-glow); }
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+}
+
+.note-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.1s;
+}
+
+.note-row:last-child { border-bottom: none; }
+.note-row:hover { background: var(--surface); }
+
+.note-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.note-row-title {
+  font-size: 0.84rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.note-row:hover .note-row-title { color: var(--phosphor); }
+
+.note-row-date {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.note-tag-chip {
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.1em 0.45em;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.note-tag-chip.tag-ci-cd    { color: var(--phosphor); border-color: var(--phosphor-dim); }
+.note-tag-chip.tag-devops   { color: var(--amber);    border-color: var(--amber-dim); }
+.note-tag-chip.tag-infra    { color: var(--blue);     border-color: rgba(48,136,204,0.3); }
+.note-tag-chip.tag-ai       { color: var(--purple);   border-color: rgba(128,85,204,0.3); }
+.note-tag-chip.tag-fastapi  { color: var(--text);     border-color: var(--border-2); }
+
+.notes-empty {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 3rem 0;
+  letter-spacing: 0.04em;
+}
+
+.notes-empty a { color: var(--text-2); transition: color 0.15s; }
+.notes-empty a:hover { color: var(--phosphor); }
+.notes-empty code { color: var(--phosphor); background: var(--surface); padding: 0.05em 0.35em; }
+
+/* note detail */
+
+.note-detail {
+  max-width: 760px;
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+
+.note-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.note-detail-date {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.note-detail-title {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--phosphor);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 18px var(--phosphor-glow-strong);
+}
+
+.note-detail-body {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  line-height: 1.85;
+  white-space: pre-wrap;
+  margin-bottom: 2rem;
+}
+
+.note-detail-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.note-detail-actions form { margin: 0; }
+
+.note-action-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.note-action-btn:hover { border-color: var(--phosphor); color: var(--phosphor); }
+.note-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+.note-action-btn.secondary { color: var(--muted); }
+
+/* note form */
+
+.note-form {
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.note-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.note-form-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.note-form-input,
+.note-form-select,
+.note-form-textarea {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.84rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border-2);
+  border-radius: 0;
+  padding: 0.5rem 0.65rem;
+  outline: none;
+  transition: border-color 0.15s;
+  caret-color: var(--phosphor);
+  width: 100%;
+}
+
+.note-form-textarea {
+  resize: vertical;
+  line-height: 1.7;
+  min-height: 320px;
+}
+
+.note-form-input:focus,
+.note-form-select:focus,
+.note-form-textarea:focus { border-color: var(--phosphor); }
+
+.note-form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* ─── Responsive ────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {

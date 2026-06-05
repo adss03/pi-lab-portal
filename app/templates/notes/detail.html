@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ note.title }} — Notes — Pi Lab Portal{% endblock %}
+{% block content %}
+<div class="dashboard-wrap">
+  <header>
+    <div class="header-left">
+      <span class="led live"></span>
+      <a href="{{ request.url_for('dashboard') }}" class="header-brand">PI LAB PORTAL</a>
+    </div>
+    <nav class="header-nav">
+      <a href="{{ request.url_for('notes_list') }}">← notes</a>
+      <span class="header-user">{{ user.username }}</span>
+      <a href="{{ request.url_for('logout') }}">sign out</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="note-detail">
+      <div class="note-detail-meta">
+        <span class="note-tag-chip tag-{{ note.tag }}">{{ note.tag }}</span>
+        <span class="note-detail-date">updated {{ note.updated_at.strftime('%Y-%m-%d') }}</span>
+      </div>
+      <h2 class="note-detail-title">{{ note.title }}</h2>
+      <div class="note-detail-body">{{ note.body }}</div>
+      <div class="note-detail-actions">
+        <a href="{{ request.url_for('notes_edit', note_id=note.id) }}" class="note-action-btn">edit</a>
+        <form method="post" action="/notes/{{ note.id }}/delete/" onsubmit="return confirm('delete this note?')">
+          <button type="submit" class="note-action-btn danger">delete</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
