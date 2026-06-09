@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SERAG</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Futura Bold Condensed Oblique is the Nike face; this stack approximates it */
+    font-family: "Futura", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  .stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .stage.hidden { visibility: hidden; }
+
+  /* light spill of the lamp on the wall, flickers with the sign */
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 45% at 50% 50%, rgba(255, 255, 255, 0.09), transparent 70%);
+    animation: lamp-flicker 7s linear infinite;
+  }
+
+  .word {
+    position: relative;
+    font-size: clamp(3.5rem, 17vw, 17rem);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    transform: skewX(-8deg) scaleY(1.12);
+    user-select: none;
+    animation: lamp-flicker 7s linear infinite;
+  }
+
+  .face {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    text-shadow:
+      0 1px 0 #ececec,
+      1px 2px 0 #d8d8d8,
+      2px 3px 0 #c2c2c2,
+      3px 4px 0 #ababab,
+      4px 5px 0 #939393,
+      5px 6px 0 #7a7a7a,
+      6px 7px 0 #606060,
+      7px 8px 0 #454545,
+      8px 10px 14px rgba(0, 0, 0, 0.9),
+      0 0 30px rgba(255, 255, 255, 0.3),
+      0 0 80px rgba(255, 255, 255, 0.15);
+  }
+
+  .face i {
+    font-style: inherit;
+    display: inline-block;
+  }
+
+  /* the dying letters of the broken tube */
+  .face i:nth-child(3) { animation: dying-letter 4.3s linear infinite; }
+  .face i:nth-child(5) { animation: dying-letter 6.1s linear infinite reverse; }
+
+  /* displaced slices that tear horizontally across the sign */
+  .slice {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    color: #fff;
+    opacity: 0.85;
+    clip-path: inset(100% 0 0 0);
+  }
+
+  .slice-a { animation: slice-a 3.1s steps(1, end) infinite; }
+  .slice-b {
+    opacity: 0.6;
+    animation: slice-b 4.7s steps(1, end) infinite;
+  }
+
+  @keyframes lamp-flicker {
+    0%     { opacity: 1; }
+    7.9%   { opacity: 1; }
+    8%     { opacity: 0.6; }
+    8.4%   { opacity: 1; }
+    23%    { opacity: 1; }
+    23.2%  { opacity: 0.15; }
+    23.6%  { opacity: 0.85; }
+    24%    { opacity: 0.3; }
+    24.4%  { opacity: 1; }
+    38%    { opacity: 1; }
+    38.1%  { opacity: 0.8; }
+    38.3%  { opacity: 1; }
+    54%    { opacity: 1; }
+    54.2%  { opacity: 0.7; }
+    54.5%  { opacity: 1; }
+    71%    { opacity: 1; }
+    71.1%  { opacity: 0.35; }
+    71.3%  { opacity: 0.95; }
+    71.6%  { opacity: 0.5; }
+    72%    { opacity: 1; }
+    93%    { opacity: 1; }
+    93.2%  { opacity: 0.8; }
+    93.5%  { opacity: 1; }
+    100%   { opacity: 1; }
+  }
+
+  @keyframes dying-letter {
+    0%     { opacity: 1; }
+    12%    { opacity: 1; }
+    12.3%  { opacity: 0.2; }
+    12.6%  { opacity: 1; }
+    13%    { opacity: 0.45; }
+    13.4%  { opacity: 1; }
+    47%    { opacity: 1; }
+    47.2%  { opacity: 0.1; }
+    47.8%  { opacity: 0.9; }
+    48.3%  { opacity: 0.25; }
+    48.9%  { opacity: 1; }
+    86%    { opacity: 1; }
+    86.4%  { opacity: 0.5; }
+    86.7%  { opacity: 1; }
+    100%   { opacity: 1; }
+  }
+
+  @keyframes slice-a {
+    0%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+    6%       { clip-path: inset(14% 0 76% 0); transform: translateX(-0.04em); }
+    8%       { clip-path: inset(100% 0 0 0); transform: none; }
+    32%      { clip-path: inset(62% 0 26% 0); transform: translateX(0.035em); }
+    34%      { clip-path: inset(100% 0 0 0); transform: none; }
+    61%      { clip-path: inset(38% 0 50% 0); transform: translate(-0.055em, 0.012em); }
+    63.5%    { clip-path: inset(100% 0 0 0); transform: none; }
+    82%      { clip-path: inset(78% 0 8% 0); transform: translateX(0.045em); }
+    84%      { clip-path: inset(100% 0 0 0); transform: none; }
+  }
+
+  @keyframes slice-b {
+    0%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+    11%      { clip-path: inset(4% 0 88% 0); transform: translateX(0.05em); }
+    13%      { clip-path: inset(100% 0 0 0); transform: none; }
+    44%      { clip-path: inset(70% 0 18% 0); transform: translate(-0.04em, -0.01em); }
+    46.5%    { clip-path: inset(100% 0 0 0); transform: none; }
+    73%      { clip-path: inset(28% 0 60% 0); transform: translateX(-0.06em); }
+    75%      { clip-path: inset(100% 0 0 0); transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage::before, .word, .face i, .slice { animation: none; }
+    .slice { display: none; }
+  }
+
+  .rotate-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.75rem;
+    padding: 2rem;
+    text-align: center;
+    color: #fff;
+  }
+
+  .rotate-overlay[hidden] { display: none; }
+
+  .rotate-overlay p {
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 1.15rem;
+  }
+
+  .rotate-overlay button {
+    font: inherit;
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    background: #fff;
+    color: #000;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.45rem 1.6rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="word">
+      <span class="slice slice-a" aria-hidden="true">SERAG</span>
+      <span class="slice slice-b" aria-hidden="true">SERAG</span>
+      <span class="face"><i>S</i><i>E</i><i>R</i><i>A</i><i>G</i></span>
+    </div>
+  </div>
+
+  <div class="rotate-overlay" id="rotate-overlay" hidden>
+    <p>Turn your phone landscape</p>
+    <button type="button" id="rotate-ok">OK</button>
+  </div>
+
+  <script>
+    (function () {
+      const overlay = document.getElementById("rotate-overlay");
+      const stage = document.getElementById("stage");
+      const portrait = window.matchMedia("(orientation: portrait)");
+      const mobile = window.matchMedia("(pointer: coarse) and (max-width: 1024px)");
+      let dismissed = false;
+
+      function render() {
+        const show = mobile.matches && portrait.matches && !dismissed;
+        overlay.hidden = !show;
+        stage.classList.toggle("hidden", show);
+      }
+
+      document.getElementById("rotate-ok").addEventListener("click", function () {
+        dismissed = true;
+        render();
+      });
+      portrait.addEventListener("change", render);
+      render();
+    })();
+  </script>
+</body>
+</html>
