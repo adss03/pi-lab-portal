@@ -11,7 +11,7 @@ from app.auth import hash_password
 from app.config import settings
 from app.database import engine, init_db
 from app.models import Note, User
-from app.routers import core, notes, pi_health
+from app.routers import core, notes, pi_health, serag
 
 logging.basicConfig(level=logging.INFO)
 
@@ -222,6 +222,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(core.router)
 app.include_router(pi_health.router)
 app.include_router(notes.router)
+app.include_router(serag.router)
 
 
 @app.exception_handler(HTTPException)
